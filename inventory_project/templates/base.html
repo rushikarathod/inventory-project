@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}InventoryPro{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root { --primary: #2563eb; --sidebar-width: 250px; }
+    body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-width); background: #1e293b;
+      min-height: 100vh; position: fixed; top: 0; left: 0; z-index: 100;
+    }
+    .sidebar-brand {
+      padding: 1.5rem; color: #fff; font-size: 1.3rem;
+      font-weight: 700; border-bottom: 1px solid #334155;
+    }
+    .sidebar-brand span { color: #3b82f6; }
+    .sidebar .nav-link {
+      color: #94a3b8; padding: .7rem 1.5rem;
+      display: flex; align-items: center; gap: .7rem; transition: all .2s;
+    }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      color: #fff; background: #2563eb;
+    }
+    .sidebar .nav-label {
+      color: #64748b; font-size: .7rem; text-transform: uppercase;
+      letter-spacing: .1em; padding: 1rem 1.5rem .3rem;
+    }
+
+    /* MAIN */
+    .main-content { margin-left: var(--sidebar-width); }
+    .topbar {
+      background: #fff; padding: .8rem 1.5rem;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex; justify-content: space-between; align-items: center;
+      position: sticky; top: 0; z-index: 99;
+    }
+    .page-body { padding: 1.5rem; }
+
+    /* CARDS */
+    .card { border: none; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    .card-header {
+      background: #fff; border-bottom: 1px solid #f1f5f9;
+      font-weight: 600; border-radius: 12px 12px 0 0 !important; padding: 1rem 1.5rem;
+    }
+    .stat-card { border-radius: 12px; color: #fff; padding: 1.5rem; }
+
+    /* BADGES */
+    .badge-pending { background: #fef3c7; color: #92400e; padding: .4rem .8rem; border-radius: 20px; font-size: .75rem; }
+    .badge-processing { background: #dbeafe; color: #1e40af; padding: .4rem .8rem; border-radius: 20px; font-size: .75rem; }
+    .badge-shipped { background: #e0e7ff; color: #3730a3; padding: .4rem .8rem; border-radius: 20px; font-size: .75rem; }
+    .badge-delivered { background: #dcfce7; color: #166534; padding: .4rem .8rem; border-radius: 20px; font-size: .75rem; }
+    .badge-cancelled { background: #fee2e2; color: #991b1b; padding: .4rem .8rem; border-radius: 20px; font-size: .75rem; }
+    .badge-paid { background: #dcfce7; color: #166534; padding: .4rem .8rem; border-radius: 20px; font-size: .75rem; }
+    .badge-unpaid { background: #fee2e2; color: #991b1b; padding: .4rem .8rem; border-radius: 20px; font-size: .75rem; }
+    .badge-refunded { background: #fef3c7; color: #92400e; padding: .4rem .8rem; border-radius: 20px; font-size: .75rem; }
+
+    /* TABLE */
+    .table thead th {
+      background: #f8fafc; font-size: .8rem;
+      text-transform: uppercase; letter-spacing: .05em;
+      color: #64748b; border: none;
+    }
+    .table td { vertical-align: middle; border-color: #f1f5f9; }
+
+    /* LOW STOCK */
+    .low-stock { background: #fef2f2; border-left: 3px solid #ef4444; }
+
+    /* BUTTONS */
+    .btn-primary { background: #2563eb; border: none; }
+    .btn-primary:hover { background: #1d4ed8; }
+
+    /* PRODUCT IMAGE */
+    .product-img {
+      width: 45px; height: 45px; object-fit: cover;
+      border-radius: 8px;
+    }
+    .product-img-placeholder {
+      width: 45px; height: 45px; background: #e2e8f0;
+      border-radius: 8px; display: flex; align-items: center;
+      justify-content: center; color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+{% if user.is_authenticated %}
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <i class="fas fa-boxes me-2"></i>Inventory<span>Pro</span>
+  </div>
+  <nav class="mt-2">
+    <div class="nav-label">Main</div>
+    <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <i class="fas fa-tachometer-alt"></i> Dashboard</a>
+
+    <div class="nav-label">Inventory</div>
+    <a href="{% url 'product_list' %}" class="nav-link {% if 'product' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fas fa-box"></i> Products</a>
+    <a href="{% url 'category_list' %}" class="nav-link {% if 'category' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fas fa-tags"></i> Categories</a>
+
+    <div class="nav-label">Sales</div>
+
+    {% if user.role == 'customer' %}
+      <a href="{% url 'storefront' %}" class="nav-link {% if request.resolver_match.url_name == 'storefront' %}active{% endif %}">
+        <i class="fas fa-store"></i> Shop</a>
+      <a href="{% url 'my_orders' %}" class="nav-link {% if request.resolver_match.url_name == 'my_orders' %}active{% endif %}">
+        <i class="fas fa-receipt"></i> My Orders</a>
+    {% else %}
+      <a href="{% url 'order_list' %}" class="nav-link {% if 'order' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="fas fa-shopping-cart"></i> Orders</a>
+      <a href="{% url 'payment_list' %}" class="nav-link {% if 'payment' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="fas fa-credit-card"></i> Payments</a>
+    {% endif %}
+        <i class="fas fa-shopping-cart"></i> Orders</a>
+      <a href="{% url 'payment_list' %}" class="nav-link {% if 'payment' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="fas fa-credit-card"></i> Payments</a>
+
+    <div class="nav-label">Account</div>
+    <a href="{% url 'profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+      <i class="fas fa-user"></i> Profile</a>
+    <a href="{% url 'logout' %}" class="nav-link text-danger">
+      <i class="fas fa-sign-out-alt"></i> Logout</a>
+  </nav>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+  <div class="topbar">
+    <h6 class="mb-0 fw-semibold">{% block page_title %}Dashboard{% endblock %}</h6>
+    <div class="d-flex align-items-center gap-3">
+      {% if user.profile_photo %}
+        <img src="{{ user.profile_photo.url }}" class="rounded-circle" width="35" height="35" style="object-fit:cover;">
+      {% else %}
+        <div style="width:35px;height:35px;background:#2563eb;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;">
+          {{ user.username|first|upper }}
+        </div>
+      {% endif %}
+      <div>
+        <span class="fw-semibold small">{{ user.username }}</span>
+        <span class="badge bg-primary ms-1 small">{{ user.role }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+    {% block content %}{% endblock %}
+  </div>
+</div>
+
+{% else %}
+  {% block auth_content %}{% endblock %}
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

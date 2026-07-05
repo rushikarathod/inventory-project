@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Payments{% endblock %}
+{% block page_title %}Payments{% endblock %}
+{% block content %}
+
+<div class="card">
+  <div class="card-header">
+    <i class="fas fa-credit-card me-2 text-primary"></i>All Payments
+  </div>
+
+  <div class="card-body border-bottom">
+    <form method="get" class="row g-2">
+      <div class="col-md-4">
+        <select name="status" class="form-select">
+          <option value="">All Statuses</option>
+          {% for val, label in status_choices %}
+          <option value="{{ val }}" {% if selected_status == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <select name="method" class="form-select">
+          <option value="">All Methods</option>
+          {% for val, label in method_choices %}
+          <option value="{{ val }}" {% if selected_method == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <button class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i>Filter</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card-body p-0">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th>Order #</th><th>Customer</th><th>Method</th>
+          <th>Amount</th><th>Status</th><th>Date</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for payment in payments %}
+        <tr>
+          <td><strong>#{{ payment.order.order_number }}</strong></td>
+          <td>{{ payment.order.customer_name }}</td>
+          <td>
+            {% if payment.method == 'cash' %}<i class="fas fa-money-bill-wave text-success me-1"></i>{% endif %}
+            {% if payment.method == 'card' %}<i class="fas fa-credit-card text-primary me-1"></i>{% endif %}
+            {% if payment.method == 'upi' %}<i class="fas fa-mobile-alt text-info me-1"></i>{% endif %}
+            {% if payment.method == 'bank_transfer' %}<i class="fas fa-university text-secondary me-1"></i>{% endif %}
+            {{ payment.get_method_display }}
+          </td>
+          <td class="fw-semibold">₹{{ payment.amount }}</td>
+          <td><span class="badge-{{ payment.status }}">{{ payment.get_status_display }}</span></td>
+          <td class="text-muted">{{ payment.created_at|date:"M d, Y" }}</td>
+          <td>
+            <a href="{% url 'payment_detail' payment.pk %}" class="btn btn-sm btn-outline-primary">
+              <i class="fas fa-eye"></i>
+            </a>
+            <a href="{% url 'payment_edit' payment.pk %}" class="btn btn-sm btn-outline-secondary">
+              <i class="fas fa-edit"></i>
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center text-muted py-4">No payments recorded yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

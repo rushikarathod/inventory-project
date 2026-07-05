@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Delete Product{% endblock %}
+{% block page_title %}Delete Product{% endblock %}
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-body text-center py-5">
+        <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+        <h5 class="fw-bold">Delete "{{ product.name }}"?</h5>
+        <p class="text-muted">This will mark the product as inactive. This action can be reversed from admin panel.</p>
+
+        <form method="post">
+          {% csrf_token %}
+          <div class="d-flex justify-content-center gap-2 mt-4">
+            <button type="submit" class="btn btn-danger px-4">
+              <i class="fas fa-trash me-1"></i>Yes, Delete
+            </button>
+            <a href="{% url 'product_list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

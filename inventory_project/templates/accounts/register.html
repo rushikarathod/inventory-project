@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Register{% endblock %}
+{% block auth_content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center py-4"
+     style="background: linear-gradient(135deg, #1e293b, #0f172a)">
+  <div class="card p-4" style="width: 480px; border-radius: 16px;">
+    <div class="text-center mb-4">
+      <div style="width:70px;height:70px;background:#2563eb;border-radius:16px;
+                  display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+        <i class="fas fa-boxes fa-2x text-white"></i>
+      </div>
+      <h4 class="fw-bold">Create Account</h4>
+      <p class="text-muted">Join InventoryPro today</p>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Username</label>
+        {{ form.username }}
+        {% if form.username.errors %}<div class="text-danger small">{{ form.username.errors }}</div>{% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Email</label>
+        {{ form.email }}
+        {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors }}</div>{% endif %}
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-semibold">Role</label>
+          {{ form.role }}
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-semibold">Phone</label>
+          {{ form.phone }}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Password</label>
+        {{ form.password1 }}
+        {% if form.password1.errors %}<div class="text-danger small">{{ form.password1.errors }}</div>{% endif %}
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Confirm Password</label>
+        {{ form.password2 }}
+        {% if form.password2.errors %}<div class="text-danger small">{{ form.password2.errors }}</div>{% endif %}
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
+        <i class="fas fa-user-plus me-2"></i>Create Account
+      </button>
+
+      <p class="text-center mt-3 text-muted small">
+        Already have an account?
+        <a href="{% url 'login' %}" class="text-primary fw-semibold">Sign in</a>
+      </p>
+    </form>
+  </div>
+</div>
+
+<style>
+  input, select {
+    display: block; width: 100%; padding: .5rem .75rem;
+    border: 1px solid #dee2e6; border-radius: .375rem;
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+
+<div class="card mb-4">
+  <div class="card-header"><i class="fas fa-user me-2 text-primary"></i>Customer Details</div>
+  <div class="card-body">
+    <form method="post" id="orderForm">
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Customer Name</label>
+          {{ form.customer_name }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Email</label>
+          {{ form.customer_email }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Phone</label>
+          {{ form.customer_phone }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Status</label>
+          {{ form.status }}
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">Shipping Address</label>
+          {{ form.shipping_address }}
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">Notes</label>
+          {{ form.notes }}
+        </div>
+      </div>
+
+      <hr class="my-4">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0"><i class="fas fa-box-open me-2 text-primary"></i>Order Items</h6>
+        <button type="button" class="btn btn-sm btn-outline-primary" onclick="addItemRow()">
+          <i class="fas fa-plus me-1"></i>Add Item
+        </button>
+      </div>
+
+      {{ formset.management_form }}
+      <div id="itemsContainer">
+        {% for item_form in formset %}
+        <div class="row g-2 mb-2 align-items-center border rounded p-3 item-row">
+          {% for hidden in item_form.hidden_fields %}{{ hidden }}{% endfor %}
+          <div class="col-md-4">
+            <label class="form-label small text-muted">Product</label>
+            {{ item_form.product }}
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small text-muted">Quantity</label>
+            {{ item_form.quantity }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small text-muted">Unit Price</label>
+            {{ item_form.unit_price }}
+          </div>
+          <div class="col-md-2">
+            {% if item_form.DELETE %}
+              <label class="form-label small text-muted d-block">Remove</label>
+              {{ item_form.DELETE }}
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary px-4">
+          <i class="fas fa-save me-1"></i>Save Order
+        </button>
+        <a href="{% url 'order_list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  input, select, textarea {
+    display: block; width: 100%; padding: .5rem .75rem;
+    border: 1px solid #dee2e6; border-radius: .375rem;
+  }
+  .item-row { background: #f8fafc; }
+</style>
+
+<script>
+  function addItemRow() {
+    const totalForms = document.getElementById('id_items-TOTAL_FORMS');
+    const container = document.getElementById('itemsContainer');
+    const formNum = parseInt(totalForms.value);
+
+    const newRow = container.children[0].cloneNode(true);
+    newRow.innerHTML = newRow.innerHTML.replaceAll('items-0-', `items-${formNum}-`);
+
+    // clear values
+    newRow.querySelectorAll('input, select').forEach(el => {
+      if (el.type !== 'checkbox') el.value = '';
+    });
+
+    container.appendChild(newRow);
+    totalForms.value = formNum + 1;
+  }
+</script>
+{% endblock %}

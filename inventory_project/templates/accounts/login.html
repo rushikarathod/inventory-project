@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+{% block auth_content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center"
+     style="background: linear-gradient(135deg, #1e293b, #0f172a)">
+  <div class="card p-4" style="width: 420px; border-radius: 16px;">
+    <div class="text-center mb-4">
+      <div style="width:70px;height:70px;background:#2563eb;border-radius:16px;
+                  display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+        <i class="fas fa-boxes fa-2x text-white"></i>
+      </div>
+      <h4 class="fw-bold">InventoryPro</h4>
+      <p class="text-muted">Sign in to your account</p>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-danger">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Username</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-user text-muted"></i></span>
+          <input type="text" name="username" class="form-control" placeholder="Enter username" required>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Password</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-lock text-muted"></i></span>
+          <input type="password" name="password" class="form-control" placeholder="Enter password" required>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
+        <i class="fas fa-sign-in-alt me-2"></i>Sign In
+      </button>
+      <p class="text-center mt-3 text-muted small">
+        Don't have an account?
+        <a href="{% url 'register' %}" class="text-primary fw-semibold">Register here</a>
+      </p>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-box me-2 text-primary"></i>{{ title }}
+      </div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <!-- IMAGE PREVIEW -->
+          <div class="mb-4 text-center">
+            <label class="form-label fw-semibold d-block">Product Image</label>
+            {% if form.instance.image %}
+              <img id="imgPreview" src="{{ form.instance.image.url }}" class="rounded mb-2"
+                   width="120" height="120" style="object-fit:cover;">
+            {% else %}
+              <div id="imgPlaceholder" class="rounded mb-2 mx-auto d-flex align-items-center justify-content-center"
+                   style="width:120px;height:120px;background:#f1f5f9;">
+                <i class="fas fa-image fa-2x text-secondary opacity-50"></i>
+              </div>
+              <img id="imgPreview" src="" class="rounded mb-2 d-none" width="120" height="120" style="object-fit:cover;">
+            {% endif %}
+            <input type="file" name="image" class="form-control" accept="image/*" onchange="previewImg(event)">
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Product Name</label>
+              {{ form.name }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">SKU</label>
+              {{ form.sku }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Category</label>
+              {{ form.category }}
+            </div>
+            <div class="col-md-6 d-flex align-items-end pb-2">
+              <div class="form-check">
+                {{ form.is_active }}
+                <label class="form-check-label fw-semibold ms-1">Active Product</label>
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Description</label>
+              {{ form.description }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Selling Price (₹)</label>
+              {{ form.price }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Cost Price (₹)</label>
+              {{ form.cost_price }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Stock Quantity</label>
+              {{ form.stock_quantity }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Low Stock Threshold</label>
+              {{ form.low_stock_threshold }}
+            </div>
+          </div>
+
+          <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary px-4">
+              <i class="fas fa-save me-1"></i>Save Product
+            </button>
+            <a href="{% url 'product_list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function previewImg(event) {
+    const preview = document.getElementById('imgPreview');
+    const placeholder = document.getElementById('imgPlaceholder');
+    const file = event.target.files[0];
+    if (file) {
+      preview.src = URL.createObjectURL(file);
+      preview.classList.remove('d-none');
+      if (placeholder) placeholder.classList.add('d-none');
+    }
+  }
+</script>
+{% endblock %}

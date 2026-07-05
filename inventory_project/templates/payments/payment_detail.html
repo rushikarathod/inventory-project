@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Payment Details{% endblock %}
+{% block page_title %}Payment Details{% endblock %}
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-credit-card me-2 text-primary"></i>Payment Info</span>
+        <span class="badge-{{ payment.status }} fs-6">{{ payment.get_status_display }}</span>
+      </div>
+      <div class="card-body">
+
+        <div class="text-center mb-4">
+          <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-2"
+               style="width:70px;height:70px;background:#eff6ff;">
+            {% if payment.method == 'cash' %}<i class="fas fa-money-bill-wave fa-2x text-success"></i>{% endif %}
+            {% if payment.method == 'card' %}<i class="fas fa-credit-card fa-2x text-primary"></i>{% endif %}
+            {% if payment.method == 'upi' %}<i class="fas fa-mobile-alt fa-2x text-info"></i>{% endif %}
+            {% if payment.method == 'bank_transfer' %}<i class="fas fa-university fa-2x text-secondary"></i>{% endif %}
+          </div>
+          <h3 class="fw-bold mb-0">₹{{ payment.amount }}</h3>
+          <p class="text-muted">{{ payment.get_method_display }}</p>
+        </div>
+
+        <hr>
+
+        <div class="row g-3">
+          <div class="col-6">
+            <small class="text-muted d-block">Order Number</small>
+            <a href="{% url 'order_detail' payment.order.pk %}" class="fw-semibold text-decoration-none">
+              #{{ payment.order.order_number }}
+            </a>
+          </div>
+          <div class="col-6">
+            <small class="text-muted d-block">Customer</small>
+            <span class="fw-semibold">{{ payment.order.customer_name }}</span>
+          </div>
+          <div class="col-6">
+            <small class="text-muted d-block">Transaction ID</small>
+            <span class="fw-semibold">{{ payment.transaction_id|default:"—" }}</span>
+          </div>
+          <div class="col-6">
+            <small class="text-muted d-block">Paid At</small>
+            <span class="fw-semibold">
+              {% if payment.paid_at %}{{ payment.paid_at|date:"M d, Y H:i" }}{% else %}Not paid yet{% endif %}
+            </span>
+          </div>
+        </div>
+
+        {% if payment.notes %}
+        <hr>
+        <small class="text-muted d-block mb-1">Notes</small>
+        <p class="mb-0">{{ payment.notes }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- QUICK STATUS UPDATE -->
+    <div class="card mb-4">
+      <div class="card-header"><i class="fas fa-sync me-2 text-primary"></i>Update Status</div>
+      <div class="card-body">
+        <form method="post" action="{% url 'payment_status_update' payment.pk %}" class="d-flex gap-2">
+          {% csrf_token %}
+          <select name="status" class="form-select">
+            <option value="pending" {% if payment.status == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="paid" {% if payment.status == 'paid' %}selected{% endif %}>Paid</option>
+            <option value="failed" {% if payment.status == 'failed' %}selected{% endif %}>Failed</option>
+            <option value="refunded" {% if payment.status == 'refunded' %}selected{% endif %}>Refunded</option>
+          </select>
+          <button class="btn btn-primary px-4"><i class="fas fa-check me-1"></i>Update</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a href="{% url 'payment_edit' payment.pk %}" class="btn btn-outline-secondary w-100">Edit Payment</a>
+      <a href="{% url 'payment_list' %}" class="btn btn-outline-primary w-100">Back to Payments</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Order #{{ order.order_number }}{% endblock %}
+{% block page_title %}Order #{{ order.order_number }}{% endblock %}
+{% block content %}
+
+<div class="row g-4">
+  <!-- LEFT: Items -->
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-box-open me-2 text-primary"></i>Order Items</span>
+        <span class="badge-{{ order.status }} fs-6">{{ order.get_status_display }}</span>
+      </div>
+      <div class="card-body p-0">
+        <table class="table mb-0">
+          <thead>
+            <tr><th>Product</th><th>SKU</th><th>Qty</th><th>Unit Price</th><th>Subtotal</th></tr>
+          </thead>
+          <tbody>
+            {% for item in order.items.all %}
+            <tr>
+              <td class="d-flex align-items-center gap-2">
+                {% if item.product.image %}
+                  <img src="{{ item.product.image.url }}" class="product-img">
+                {% else %}
+                  <div class="product-img-placeholder"><i class="fas fa-box"></i></div>
+                {% endif %}
+                {{ item.product.name }}
+              </td>
+              <td><code>{{ item.product.sku }}</code></td>
+              <td>{{ item.quantity }}</td>
+              <td>₹{{ item.unit_price }}</td>
+              <td class="fw-semibold">₹{{ item.subtotal }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr class="table-light">
+              <td colspan="4" class="text-end fw-bold">Total Amount:</td>
+              <td class="fw-bold text-primary fs-5">₹{{ order.total_amount }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    {% if order.notes %}
+    <div class="card">
+      <div class="card-header"><i class="fas fa-sticky-note me-2 text-warning"></i>Notes</div>
+      <div class="card-body text-muted">{{ order.notes }}</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- RIGHT: Customer + Status + Payment -->
+  <div class="col-lg-4">
+    <div class="card mb-3">
+      <div class="card-header"><i class="fas fa-user me-2 text-primary"></i>Customer Info</div>
+      <div class="card-body">
+        <p class="mb-2"><i class="fas fa-user text-muted me-2"></i>{{ order.customer_name }}</p>
+        <p class="mb-2"><i class="fas fa-envelope text-muted me-2"></i>{{ order.customer_email }}</p>
+        <p class="mb-2"><i class="fas fa-phone text-muted me-2"></i>{{ order.customer_phone|default:"N/A" }}</p>
+        <p class="mb-0"><i class="fas fa-map-marker-alt text-muted me-2"></i>{{ order.shipping_address }}</p>
+      </div>
+    </div>
+
+    <!-- PAYMENT CARD -->
+    <div class="card mb-3">
+      <div class="card-header"><i class="fas fa-credit-card me-2 text-primary"></i>Payment</div>
+      <div class="card-body">
+        {% if order.payment %}
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Method</span>
+            <strong>{{ order.payment.get_method_display }}</strong>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Status</span>
+            <span class="badge-{{ order.payment.status }}">{{ order.payment.get_status_display }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-3">
+            <span class="text-muted">Amount</span>
+            <strong>₹{{ order.payment.amount }}</strong>
+          </div>
+          <a href="{% url 'payment_detail' order.payment.pk %}" class="btn btn-outline-primary btn-sm w-100">
+            <i class="fas fa-eye me-1"></i>View Payment
+          </a>
+        {% else %}
+          <p class="text-muted small mb-3">No payment recorded yet.</p>
+          <a href="{% url 'payment_create' order.pk %}" class="btn btn-primary btn-sm w-100">
+            <i class="fas fa-plus me-1"></i>Add Payment
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- STATUS UPDATE -->
+    <div class="card mb-3">
+      <div class="card-header"><i class="fas fa-truck me-2 text-primary"></i>Update Order Status</div>
+      <div class="card-body">
+        <form method="post" action="{% url 'order_status_update' order.pk %}">
+          {% csrf_token %}
+          <select name="status" class="form-select mb-2">
+            {% for val, label in order.Status.choices %}
+            <option value="{{ val }}" {% if order.status == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-primary w-100"><i class="fas fa-sync me-1"></i>Update Status</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a href="{% url 'order_edit' order.pk %}" class="btn btn-outline-secondary w-100">Edit</a>
+      <a href="{% url 'order_list' %}" class="btn btn-outline-primary w-100">Back</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

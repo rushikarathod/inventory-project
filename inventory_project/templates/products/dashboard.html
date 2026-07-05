@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content %}
+
+<!-- STAT CARDS -->
+<div class="row g-4 mb-4">
+  <div class="col-md-3">
+    <div class="stat-card" style="background: linear-gradient(135deg,#2563eb,#1d4ed8)">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <p class="mb-1 opacity-75 small">Total Products</p>
+          <h3 class="fw-bold mb-0">{{ total_products }}</h3>
+        </div>
+        <i class="fas fa-box fa-2x opacity-50"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="stat-card" style="background: linear-gradient(135deg,#16a34a,#15803d)">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <p class="mb-1 opacity-75 small">Total Revenue</p>
+          <h3 class="fw-bold mb-0">₹{{ total_revenue }}</h3>
+        </div>
+        <i class="fas fa-dollar-sign fa-2x opacity-50"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="stat-card" style="background: linear-gradient(135deg,#9333ea,#7c3aed)">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <p class="mb-1 opacity-75 small">Total Orders</p>
+          <h3 class="fw-bold mb-0">{{ total_orders }}</h3>
+        </div>
+        <i class="fas fa-shopping-cart fa-2x opacity-50"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="stat-card" style="background: linear-gradient(135deg,#dc2626,#b91c1c)">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <p class="mb-1 opacity-75 small">Low Stock Alerts</p>
+          <h3 class="fw-bold mb-0">{{ low_stock_products.count }}</h3>
+        </div>
+        <i class="fas fa-exclamation-triangle fa-2x opacity-50"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- RECENT ORDERS -->
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-shopping-cart me-2 text-primary"></i>Recent Orders</span>
+        <a href="{% url 'order_list' %}" class="btn btn-sm btn-primary">View All</a>
+      </div>
+      <div class="card-body p-0">
+        <table class="table mb-0">
+          <thead>
+            <tr><th>Order #</th><th>Customer</th><th>Amount</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            {% for order in recent_orders %}
+            <tr>
+              <td><a href="{% url 'order_detail' order.pk %}" class="text-decoration-none fw-semibold">#{{ order.order_number }}</a></td>
+              <td>{{ order.customer_name }}</td>
+              <td>${{ order.total_amount }}</td>
+              <td><span class="badge-{{ order.status }}">{{ order.get_status_display }}</span></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center text-muted py-4">No orders yet</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOW STOCK ALERTS -->
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-exclamation-triangle me-2 text-danger"></i>Low Stock Alerts
+      </div>
+      <div class="card-body p-0">
+        {% for product in low_stock_products %}
+        <div class="low-stock p-3 d-flex align-items-center gap-3">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" class="product-img">
+          {% else %}
+            <div class="product-img-placeholder"><i class="fas fa-box"></i></div>
+          {% endif %}
+          <div class="flex-grow-1">
+            <strong class="small d-block">{{ product.name }}</strong>
+            <small class="text-muted">SKU: {{ product.sku }}</small>
+          </div>
+          <span class="badge bg-danger">{{ product.stock_quantity }} left</span>
+        </div>
+        {% empty %}
+        <p class="text-center text-muted py-4 mb-0">
+          <i class="fas fa-check-circle text-success me-1"></i>All stock levels OK
+        </p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- QUICK STATS -->
+    <div class="card mt-4">
+      <div class="card-header"><i class="fas fa-chart-pie me-2 text-primary"></i>Categories</div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="text-muted">Total Categories</span>
+          <h4 class="fw-bold mb-0">{{ total_categories }}</h4>
+        </div>
+        <a href="{% url 'category_list' %}" class="btn btn-outline-primary btn-sm w-100 mt-3">
+          <i class="fas fa-tags me-1"></i>Manage Categories
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
